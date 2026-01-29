@@ -1,0 +1,8 @@
+# Flask framework
+Flask==3.1.2 
+# Database ORM for Flask
+Flask-SQLAlchemy==3.1.1 
+# PostgreSQL driver for database connection
+psycopg2-binary==2.9.11 
+# Load environment variables 
+python-dotenv 

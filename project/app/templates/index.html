@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}My Grocery List{% endblock %}
+
+{% block content %}
+<div class="app-wrapper">
+    <div class="grocery-card">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>🛒 My Grocery List</h1>
+            <button id="dark-mode-toggle" class="btn btn-secondary btn-sm">🌙 Dark Mode</button>
+        </div>
+
+        <!-- Add Item Form -->
+        <form action="{{ url_for('main.add_item') }}" method="POST" class="mb-4">
+            <div class="input-group">
+                <input type="text" name="item_name" class="form-control" placeholder="Add a new item" required>
+                <input type="number" name="quantity" class="form-control" placeholder="Qty" min="1" required>
+                <select name="category" class="form-select">
+                    {% for cat in categories %}
+                        <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn btn-success" type="submit">Add</button>
+            </div>
+        </form>
+
+        {% if items %}
+        <!-- Grocery List -->
+        <ul class="list-group">
+
+            {% for item in items %}
+            <li class="list-group-item d-flex justify-content-between align-items-center category-{{ item.category | lower }}">
+
+                <!-- Left: checkbox + name + emoji -->
+                <div class="d-flex align-items-center gap-2">
+                    <input type="checkbox" form="bulk-delete-form" name="item_ids" value="{{ item.id }}">
+                    <span class="item-emoji">
+                        {% if item.category == "Produce" %}🥦{% elif item.category == "Dairy" %}🧀{% elif item.category == "Meat" %}🍗{% elif item.category == "Bakery" %}🍞{% elif item.category == "Pantry" %}🥫{% elif item.category == "Snacks" %}🍪{% elif item.category == "Drinks" %}🥤{% else %}🛒{% endif %}
+                    </span>
+                    <strong>{{ item.name }}</strong>
+                </div>
+
+                <!-- Right: Increment/quantity/decrement + category badge -->
+                <div class="d-flex align-items-center gap-2">
+
+                    <!-- Increment -->
+                    <form action="{{ url_for('main.increment_item', item_id=item.id) }}" method="POST">
+                        <button type="submit" class="btn btn-outline-success btn-sm">⬆</button>
+                    </form>
+
+                    <!-- Quantity -->
+                    <span class="fw-bold">{{ item.quantity }}</span>
+
+                    <!-- Decrement -->
+                    <form action="{{ url_for('main.decrement_item', item_id=item.id) }}" method="POST">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">⬇</button>
+                    </form>
+
+                    <!-- Category badge -->
+                    <span class="badge category-badge ms-2">{{ item.category }}</span>
+
+                </div>
+            </li>
+            {% endfor %}
+
+        </ul>
+
+        <!-- Bulk delete form -->
+        <form id="bulk-delete-form" action="{{ url_for('main.delete_selected') }}" method="POST">
+            <button type="submit" class="btn btn-danger mt-3 w-100">
+                🗑 Delete Selected Items
+            </button>
+        </form>
+
+        {% else %}
+        <div class="empty-state">🌱 Your grocery list is empty — add your first item!</div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Dark mode toggle
+    const toggle = document.getElementById('dark-mode-toggle');
+
+    // On page load, apply saved dark mode
+    if (localStorage.getItem('dark-mode') === 'enabled') {
+        document.body.classList.add('dark-mode');
+    }
+
+    toggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('dark-mode', document.body.classList.contains('dark-mode') ? 'enabled' : 'disabled');
+    });
+
+    // Delete animation
+    document.querySelectorAll('.list-group-item input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+            const li = checkbox.closest('li');
+            if (checkbox.checked) li.classList.add('selected');
+            else li.classList.remove('selected');
+        });
+    });
+</script>
+
+{% endblock %}

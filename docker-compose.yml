@@ -1,0 +1,37 @@
+services:
+  web: # Flask app container
+    build: . # Build custom Docker image from Dockerfile
+    container_name: grocery-web 
+    ports:
+      - "8080:8080"
+    environment:
+      FLASK_ENV: development # Run Flask in development mode
+      SECRET_KEY: "my_super_secret_key" 
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432/mydb
+      FLASK_APP: run
+    depends_on:  # Ensure the database container starts first
+      - db
+    working_dir: /app
+    volumes:
+      - .:/app  # Mount local code for live reload in dev
+
+  db: # PostgreSQL database container (sidecar)
+    image: postgres:18 # Official PostgreSQL image
+    container_name: grocery-db
+    environment: # Container environment variables
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres # Required
+      POSTGRES_DB: mydb # Optional, defaults to user
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql  # Persistent volume for database files
+
+  adminer: # Optional web-based DB manager
+    image: adminer
+    restart: always
+    ports:
+      - "8081:8080"  
+
+volumes:
+  db-data: # Named Docker volume for PostgreSQL persistence

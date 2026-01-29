@@ -1,0 +1,152 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* { 
+    box-sizing: 
+    border-box; 
+    margin: 0; 
+    padding: 0; 
+    font-family: 
+    'Inter', sans-serif; 
+}
+
+/* ===== Background ===== */
+body {
+    min-height: 100vh;
+    background: linear-gradient(rgba(245, 255, 250, 0.15), rgba(245, 255, 250, 0.18)),
+                url("https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1600&q=80") no-repeat center center fixed;
+    background-size: cover;
+    color: #2f3e34;
+    padding-top: 70px;
+}
+
+/* Grocery-themed navbar */
+.grocery-navbar {
+    background-color: rgba(245, 255, 250, 0.85); /* pastel white overlay */
+    backdrop-filter: blur(6px); /* subtle glass effect */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1030; /* ensure it stays above other content/frozen */
+}
+
+/* ===== App Card ===== */
+.app-wrapper { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    min-height: 100vh; 
+}
+
+.grocery-card {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(6px);
+    max-width: 720px;
+    width: 100%;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    padding: 2rem;
+    transition: all 0.3s ease;
+}
+
+/* ===== Title ===== */
+h1 { text-align: center; 
+    color: #1e8449; 
+    margin-bottom: 1.5rem; 
+    font-weight: 700; 
+}
+
+/* ===== Form ===== */
+.input-group { display: flex; 
+    border-radius: 14px; 
+    overflow: hidden; 
+    border: 1px solid #dff0e6; 
+    background: #f6fbf8; 
+}
+.input-group input, .input-group select { 
+    flex: 1; padding: 0.85rem 1rem; 
+    border: none; 
+    font-size: 1rem; 
+    background: transparent; 
+}
+.input-group input:focus, .input-group select:focus { outline: none; }
+
+.input-group button {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    border: none; color: white; cursor: pointer; font-weight: 600;
+    padding: 0 1.4rem; transition: all 0.3s ease;
+}
+.input-group button:hover { transform: scale(1.05); filter: brightness(1.05); }
+
+/* ===== List Items ===== */
+.list-group { margin-top: 1.5rem; }
+.list-group-item {
+    border: none; 
+    margin-bottom: 0.6rem; 
+    border-radius: 14px;
+    padding: 0.75rem 1rem; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+    transition: all 0.3s ease; 
+    animation: fadeIn 0.4s ease;
+    background: transparent;
+}
+.list-group-item:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.12); }
+.list-group-item.selected { background: #fce4e4; transition: all 0.3s ease; }
+
+/* Increment/Decrement Buttons */
+.btn-outline-success, .btn-outline-danger {
+    padding: 0.35rem 0.7rem; font-size: 0.85rem; border-radius: 10px; transition: all 0.2s ease;
+}
+.btn-outline-success:hover { transform: scale(1.1); background: #2ecc71; color: white; }
+.btn-outline-danger:hover { transform: scale(1.1); background: #e74c3c; color: white; }
+
+/* Delete button */
+.btn-danger { border-radius: 12px; transition: all 0.3s ease; }
+.btn-danger:hover { transform: scale(1.05); }
+
+/* Empty state */
+.empty-state { text-align: center; color: #7f8c8d; margin-top: 1.5rem; font-size: 0.95rem; }
+
+/* ===== Category Badges + Colors + Emoji Glow ===== */
+.category-produce { background-color: #e8f7ee; }
+.category-dairy   { background-color: #f0f4ff; }
+.category-meat    { background-color: #fdecec; }
+.category-bakery  { background-color: #fff4e6; }
+.category-pantry  { background-color: #f5f5f5; }
+.category-snacks  { background-color: #fceeff; }
+.category-drinks  { background-color: #eaf6ff; }
+
+.category-badge { 
+    padding: 0.25rem 0.6rem; 
+    border-radius: 12px; 
+    font-size: 0.8rem; 
+    font-weight: 600; 
+    color: #fff; 
+    background: #27ae60; 
+}
+
+.category-produce .category-badge { background-color: #2ecc71; }
+.category-dairy .category-badge { background-color: #f1c40f; color: #2f2f2f; }
+.category-meat .category-badge { background-color: #e74c3c; }
+.category-bakery .category-badge { background-color: #d35400; }
+.category-pantry .category-badge { background-color: #8e44ad; }
+.category-snacks .category-badge { background-color: #f39c12; }
+.category-drinks .category-badge { background-color: #3498db; }
+
+/* ===== Animations ===== */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity:1; transform:translateY(0);} }
+.list-group-item.fade-out { opacity:0; transform: translateX(50px) rotate(5deg); transition: all 0.4s ease; }
+
+/* ===== Dark Mode ===== */
+body.dark-mode {
+    background: linear-gradient(rgba(20,20,20,0.6), rgba(20,20,20,0.6)),
+                url("https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1600&q=80") no-repeat center center fixed;
+    background-size: cover; color:#eee;
+}
+body.dark-mode .grocery-card { background: rgba(30,30,30,0.9); color:#eee; }
+body.dark-mode .list-group-item { background: #273f2c; color:#eee; }
+body.dark-mode .input-group input, body.dark-mode .input-group select { background:#333; color:#eee; }
+body.dark-mode .input-group input::placeholder, body.dark-mode .input-group select::placeholder { color:#eee; opacity:1; }
+
+/* ===== Mobile ===== */
+@media (max-width:576px) { .grocery-card{padding:1.3rem;} h1{font-size:1.4rem;} }

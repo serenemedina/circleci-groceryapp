@@ -1,0 +1,14 @@
+# macOS system file
+.DS_STORE
+
+# Python virtual environment
+.venv/
+
+# Pytest cache
+.pytest_cache/ 
+
+# Python bytecode
+__pycache__/
+
+# Coverage reports
+.coverage
