@@ -15,10 +15,10 @@ jobs:
             pip install -r project/requirements/requirements.txt
             pip install -r project/requirements/requirements-dev.txt
       - run: 
-        name: Run tests
-        command: |
-          . venv/bin/activate
-          pytest project/tests/
+          name: Run tests
+          command: |
+            . venv/bin/activate
+            pytest project/tests/
 
 workflows:
   test_workflow:
