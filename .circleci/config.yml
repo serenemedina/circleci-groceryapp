@@ -1,0 +1,26 @@
+version: 2.1 
+
+jobs:
+  test:
+    docker:
+      - image: cimg/python:3.10
+    steps:
+      - checkout # pulls the repo
+      - run:
+          name: Install dependencies 
+          command: |
+            python -m venv venv
+            . venv/bin/activate
+            pip install --upgrade pip
+            pip install -r project/requirements/requirements.txt
+            pip install -r project/requirements/requirements-dev.txt
+      - run: 
+        name: Run tests
+        command: |
+          . venv/bin/activate
+          pytest project/tests/
+
+workflows:
+  test_workflow:
+    jobs:
+      - test
