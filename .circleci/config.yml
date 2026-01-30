@@ -1,26 +1,127 @@
-version: 2.1 
+version: 2.1
 
+# Fully tests your app with the DB sidecar
 jobs:
   test:
     docker:
-      - image: cimg/python:3.10
+      # Primary Container
+      - image: cimg/python:3.14
+
+      # Sidecar DB container
+      - image: postgres:18
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: mydb
+
+    environment:
+      FLASK_ENV: testing
+      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/mydb
+
     steps:
-      - checkout # pulls the repo
+      - checkout
+      # System deps for psycopg2
       - run:
-          name: Install dependencies 
+          name: Install system dependencies
           command: |
-            python -m venv venv
-            . venv/bin/activate
+            sudo apt-get update
+            sudo apt-get install -y gcc libpq-dev wget tar
+
+      # Wait for database
+      - run:
+          name: Install Dockerize
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.6.1
+
+      - run:
+          name: Wait for db
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+
+      # Python deps
+      - run:
+          name: Install Python dependencies
+          command: |
             pip install --upgrade pip
             pip install -r project/requirements/requirements.txt
             pip install -r project/requirements/requirements-dev.txt
-      - run: 
-          name: Run tests
-          command: |
-            . venv/bin/activate
-            pytest project/tests/
 
+      # Run tests
+      - run:
+          name: Run tests
+          command: make test
+
+      # Store test results for CircleCI
+      - store_test_results:
+          path: test-results
+
+      - store_artifacts:
+          path: test-results
+
+  # Build Docker Image (multi-arch with Buildx)
+  build:
+    docker:
+      - image: cimg/base:stable
+
+    steps:
+      - checkout
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      # Install Docker Buildx
+      - run:
+          name: Install Docker Buildx
+          command: |
+            BUILDx_VERSION="v0.10.5"
+            mkdir -p ~/.docker/cli-plugins
+            curl -sSL https://github.com/docker/buildx/releases/download/${BUILDx_VERSION}/buildx-${BUILDx_VERSION}.linux-amd64 -o ~/.docker/cli-plugins/docker-buildx
+            chmod +x ~/.docker/cli-plugins/docker-buildx
+            docker buildx version
+
+      # Set up QEMU/binfmt for cross-platform builds
+      - run:
+          name: Enable QEMU for multi-arch
+          command: docker run --rm --privileged tonistiigi/binfmt:latest --install all
+
+      # Create dedicated builder instance
+      - run:
+          name: Create Buildx builder
+          command: |
+            docker buildx create --name mybuilder --use
+
+      # Docker Hub login using your PAT
+      - run:
+          name: Docker Hub Login
+          command: |
+            echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
+
+      # Build and push multi-arch Docker image
+      - run:
+          name: Build and Push Multi-Arch Image
+          command: |
+            IMAGE_TAG=${CIRCLE_SHA1}
+            docker buildx build \
+              --platform linux/amd64,linux/arm64 \
+              -t $DOCKERHUB_USER/groceryapp:${IMAGE_TAG} \
+              -t $DOCKERHUB_USER/groceryapp:latest \
+              --push .
+
+      # Store image as artifact (for traceability/debug)
+      - store_artifacts:
+          path: groceryapp.tar
+          destination: docker-image
+
+# Workflows
 workflows:
-  test_workflow:
+  version: 2
+
+  ci_pipeline:
     jobs:
       - test
+      - build:
+          requires:
+            - test
+          filters:
+            branches:
+              only: main
