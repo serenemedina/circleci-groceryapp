@@ -16,7 +16,7 @@ jobs:
 
     environment:
       FLASK_ENV: testing
-      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/mydb
+      TEST_DATABASE_URL: postgresql://$DB_USER:$DB_PASSWORD@localhost:5432/$DB_NAME
 
     steps:
       - checkout
@@ -90,7 +90,7 @@ jobs:
           command: |
             docker buildx create --name mybuilder --use
 
-      # Docker Hub login using your PAT
+      # Docker Hub login
       - run:
           name: Docker Hub Login
           command: |
@@ -106,11 +106,6 @@ jobs:
               -t $DOCKERHUB_USER/groceryapp:${IMAGE_TAG} \
               -t $DOCKERHUB_USER/groceryapp:latest \
               --push .
-
-      # Store image as artifact (for traceability/debug)
-      - store_artifacts:
-          path: groceryapp.tar
-          destination: docker-image
 
 # Workflows
 workflows:
