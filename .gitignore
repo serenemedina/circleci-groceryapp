@@ -12,3 +12,6 @@ __pycache__/
 
 # Coverage reports
 .coverage
+
+# Test Results
+test-results/
