@@ -104,6 +104,7 @@ jobs:
       - image: cimg/base:current-24.04
 
     steps:
+      - checkout
       - run:
           name: Deploy to Render
           command: |
@@ -113,26 +114,7 @@ jobs:
             IMAGE_NAME="groceryapp"
             IMAGE_TAG="${CIRCLE_SHA1}"
 
-            DEPLOY_URL="${RENDER_DEPLOY_HOOK}&imgURL=${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}/${IMAGE_NAME}:${IMAGE_TAG}"
-
-            RESPONSE=$(
-              curl --silent --show-error \
-                --request GET \
-                --write-out "\nHTTP_STATUS:%{http_code}\n" \
-                "$DEPLOY_URL" \
-                2>&1
-            )
-
-            HTTP_STATUS=$(echo "$RESPONSE" | sed -n 's/HTTP_STATUS://p')
-
-            if [ "$HTTP_STATUS" -lt 200 ] || [ "$HTTP_STATUS" -ge 300 ]; then
-              echo "Render deploy hook failed"
-              echo "$RESPONSE"
-              exit 1
-            fi
-
-            echo "Render deploy hook succeeded"
-            echo "$RESPONSE"
+            .ci/deploy.sh "${IMAGE_REGISTRY}" "${IMAGE_NAMESPACE}" "${IMAGE_NAME}" "${IMAGE_TAG}"
 
 workflows:
   version: 2
