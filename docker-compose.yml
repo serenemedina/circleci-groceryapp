@@ -8,7 +8,6 @@ services:
       FLASK_ENV: development # Run Flask in development mode
       SECRET_KEY: "my_super_secret_key" 
       DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432/mydb
-      FLASK_APP: run
     depends_on:  # Ensure the database container starts first
       - db
     working_dir: /app
