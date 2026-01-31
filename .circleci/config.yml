@@ -2,12 +2,12 @@ version: 2.1
 
 jobs:
   test:
-    description: "Fully tests your app with the DB sidecar"
+    description: "Fully tests the application with the DB sidecar"
     docker:
-      # Primary Container
+      # Primary container running the application
       - image: cimg/python:3.14
 
-      # Sidecar DB container
+      # Sidecar container running PostgreSQL for testing the database
       - image: postgres:18
         environment:
           POSTGRES_USER: postgres
@@ -33,7 +33,7 @@ jobs:
             DOCKERIZE_VERSION: v0.6.1
 
       - run:
-          name: Wait for db
+          name: Wait for DB
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
 
       - run:
@@ -47,17 +47,17 @@ jobs:
           name: Run tests
           command: make test
 
-      # Store test results for CircleCI
       - store_test_results:
           path: test-results
 
+      # Store test results for CircleCI
       - store_artifacts:
           path: test-results
 
   build:
     description: "Build Docker Image (multi-arch with Buildx)"
     docker:
-      - image: cimg/base:stable
+      - image: cimg/base:current-24.04
 
     steps:
       - checkout
@@ -98,6 +98,42 @@ jobs:
               -t $DOCKERHUB_USER/groceryapp:latest \
               --push .
 
+  deploy:
+    description: "Trigger deployment via Render deploy hook"
+    docker:
+      - image: cimg/base:current-24.04
+
+    steps:
+      - run:
+          name: Deploy to Render
+          command: |
+            # Deploy to Render and fail the job when deploy hook is unsuccessful
+            IMAGE_REGISTRY="docker.io"
+            IMAGE_NAMESPACE="serenemedina"
+            IMAGE_NAME="groceryapp"
+            IMAGE_TAG="${CIRCLE_SHA1}"
+
+            DEPLOY_URL="${RENDER_DEPLOY_HOOK}&imgURL=${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}/${IMAGE_NAME}:${IMAGE_TAG}"
+
+            RESPONSE=$(
+              curl --silent --show-error \
+                --request GET \
+                --write-out "\nHTTP_STATUS:%{http_code}\n" \
+                "$DEPLOY_URL" \
+                2>&1
+            )
+
+            HTTP_STATUS=$(echo "$RESPONSE" | sed -n 's/HTTP_STATUS://p')
+
+            if [ "$HTTP_STATUS" -lt 200 ] || [ "$HTTP_STATUS" -ge 300 ]; then
+              echo "Render deploy hook failed"
+              echo "$RESPONSE"
+              exit 1
+            fi
+
+            echo "Render deploy hook succeeded"
+            echo "$RESPONSE"
+
 workflows:
   version: 2
 
@@ -110,3 +146,10 @@ workflows:
           filters:
             branches:
               only: main
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - main
