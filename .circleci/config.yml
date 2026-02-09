@@ -6,6 +6,9 @@ jobs:
     docker:
       # Primary container running the application
       - image: cimg/python:3.14
+        environment:
+          FLASK_ENV: testing
+          TEST_DATABASE_URL: postgresql://$DB_USER:$DB_PASSWORD@localhost:5432/$DB_NAME
 
       # Sidecar container running PostgreSQL for testing the database
       - image: postgres:18
@@ -14,14 +17,10 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: mydb
 
-    environment:
-      FLASK_ENV: testing
-      TEST_DATABASE_URL: postgresql://$DB_USER:$DB_PASSWORD@localhost:5432/$DB_NAME
-
     steps:
       - checkout
       - run:
-          name: Install system dependencies
+          name: Install System Dependencies
           command: |
             sudo apt-get update
             sudo apt-get install -y gcc libpq-dev wget tar
@@ -33,24 +32,24 @@ jobs:
             DOCKERIZE_VERSION: v0.6.1
 
       - run:
-          name: Wait for DB
+          name: Wait for Database
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
 
       - run:
-          name: Install Python dependencies
+          name: Install Python Dependencies
           command: |
             pip install --upgrade pip
             pip install -r project/requirements/requirements.txt
             pip install -r project/requirements/requirements-dev.txt
 
       - run:
-          name: Run tests
+          name: Run Tests
           command: make test
 
+      # Upload test results for test summary section
       - store_test_results:
           path: test-results
 
-      # Store test results for CircleCI
       - store_artifacts:
           path: test-results
 
@@ -59,9 +58,9 @@ jobs:
     docker:
       - image: cimg/base:current-24.04
 
+    # Allows Docker commands to be run locally
     steps:
       - checkout
-
       - setup_remote_docker:
           docker_layer_caching: true
 
@@ -79,7 +78,7 @@ jobs:
           command: docker run --rm --privileged tonistiigi/binfmt:latest --install all
 
       - run:
-          name: Create Buildx builder
+          name: Create Buildx Builder
           command: |
             docker buildx create --name mybuilder --use
 
@@ -117,8 +116,6 @@ jobs:
             .ci/deploy.sh "${IMAGE_REGISTRY}" "${IMAGE_NAMESPACE}" "${IMAGE_NAME}" "${IMAGE_TAG}"
 
 workflows:
-  version: 2
-
   ci_pipeline:
     jobs:
       - test

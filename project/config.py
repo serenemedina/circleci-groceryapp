@@ -1,5 +1,6 @@
 """
-Configuration for the Flask application with multiple environments
+Application configuration module for multiple Flask environments.
+Defines base, development, testing, and production settings.
 """
 import os
 

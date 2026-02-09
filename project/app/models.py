@@ -1,5 +1,5 @@
 """
-Database models for the grocery list application
+Database models for the grocery list application.
 """
 
 from flask_sqlalchemy import SQLAlchemy

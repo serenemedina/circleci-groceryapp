@@ -1,17 +1,17 @@
 """
-This module initializes the Flask app and SQLAlchemy database
+This module initializes the Flask app and SQLAlchemy database.
 
-Provides the `create_app` function, which:
-- Loads configuration
-- Initializes extensions (SQLAlchemy)
-- Registers blueprints
-- Creates tables if they don't exist
+Creates and configures the Flask app by:
+- Loading environment-specific configuration
+- Initializing extensions (SQLAlchemy)
+- Registering blueprints
+- Creating database tables if they do not exist
 """
 from flask import Flask
 from .models import db
 from config import config
 
-# Create and configure the Flask app with the given environment config
+# Create and configure the Flask app with the given environment config (application factory function)
 def create_app(config_name):
     app = Flask(__name__)
     
@@ -28,6 +28,7 @@ def create_app(config_name):
         db.create_all()
         print()
 
+    # Register the blueprint that contains all the routes
     from .routes import main as main_bp 
     app.register_blueprint(main_bp)
 

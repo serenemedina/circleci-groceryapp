@@ -1,8 +1,8 @@
 """"
-Flask routes for the grocery list application
+Flask routes for the grocery list application.
 
 Uses a Blueprint to organize routes and handles all CRUD operations
-for grocery items
+for grocery items.
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash
