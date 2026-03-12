@@ -8,8 +8,6 @@ Code changes are continuously checked through automated testing in **CircleCI**.
 
 After tests pass, the pipeline builds Docker images for multiple architectures (amd64 and arm64) and pushes them to a container registry, making deployments consistent and portable across different environments. For approved changes merged into the **main branch**, the pipeline automatically deploys the latest version of the application to **Render (PaaS)**. 
 
-⚠️ Live demo currently offline due to free hosting limits.
-
 🔗 Live Application: https://groceryapp-latest.onrender.com
 
 ---
