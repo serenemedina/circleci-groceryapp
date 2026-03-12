@@ -1,4 +1,4 @@
-# CircleCI GroceryApp
+# GroceryApp
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/serenemedina/circleci-groceryapp/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/serenemedina/circleci-groceryapp/tree/main)
 
